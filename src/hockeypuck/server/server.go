@@ -7,7 +7,7 @@ import (
 	"net"
 	"net/http"
 	"os"
-	"sort"
+	//"sort"
 	"strings"
 	"time"
 
@@ -16,7 +16,7 @@ import (
 	"github.com/pkg/errors"
 	"gopkg.in/tomb.v2"
 
-	"hockeypuck/conflux/recon"
+	//"hockeypuck/conflux/recon"
 	"hockeypuck/hkp"
 	//"hockeypuck/hkp/sks"
 	"hockeypuck/hkp/storage"
@@ -139,7 +139,7 @@ func NewServer(settings *Settings) (*Server, error) {
 	s.middle.UseHandler(s.r)
 
 	keyReaderOptions := KeyReaderOptions(settings)
-	userAgent := fmt.Sprintf("%s/%s", settings.Software, settings.Version)
+	//userAgent := fmt.Sprintf("%s/%s", settings.Software, settings.Version)
 	/*s.sksPeer, err = sks.NewPeer(s.st, settings.Conflux.Recon.LevelDB.Path, &settings.Conflux.Recon.Settings, keyReaderOptions, userAgent)
 	if err != nil {
 		return nil, errors.WithStack(err)
