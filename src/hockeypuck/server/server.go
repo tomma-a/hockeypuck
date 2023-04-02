@@ -18,7 +18,7 @@ import (
 
 	"hockeypuck/conflux/recon"
 	"hockeypuck/hkp"
-	"hockeypuck/hkp/sks"
+	//"hockeypuck/hkp/sks"
 	"hockeypuck/hkp/storage"
 	log "hockeypuck/logrus"
 	"hockeypuck/metrics"
@@ -31,7 +31,7 @@ type Server struct {
 	st              storage.Storage
 	middle          *interpose.Middleware
 	r               *httprouter.Router
-	sksPeer         *sks.Peer
+//	sksPeer         *sks.Peer
 	logWriter       io.WriteCloser
 	metricsListener *metrics.Metrics
 
@@ -140,11 +140,11 @@ func NewServer(settings *Settings) (*Server, error) {
 
 	keyReaderOptions := KeyReaderOptions(settings)
 	userAgent := fmt.Sprintf("%s/%s", settings.Software, settings.Version)
-	s.sksPeer, err = sks.NewPeer(s.st, settings.Conflux.Recon.LevelDB.Path, &settings.Conflux.Recon.Settings, keyReaderOptions, userAgent)
+	/*s.sksPeer, err = sks.NewPeer(s.st, settings.Conflux.Recon.LevelDB.Path, &settings.Conflux.Recon.Settings, keyReaderOptions, userAgent)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
-
+*/
 	s.metricsListener = metrics.NewMetrics(settings.Metrics)
 
 	keyWriterOptions := KeyWriterOptions(settings)
@@ -219,7 +219,7 @@ type statsQueryConfig struct {
 }
 
 type loadStat struct {
-	*sks.LoadStat
+	//*sks.LoadStat
 	Time time.Time
 }
 
@@ -242,7 +242,7 @@ func (s statsPeers) Swap(i, j int)      { s[i], s[j] = s[j], s[i] }
 func (s statsPeers) Less(i, j int) bool { return s[i].Name < s[j].Name }
 
 func (s *Server) stats() (interface{}, error) {
-	sksStats := s.sksPeer.Stats()
+	//sksStats := s.sksPeer.Stats()
 
 	result := &stats{
 		Now:      time.Now().UTC().Format(time.RFC3339),
@@ -256,7 +256,7 @@ func (s *Server) stats() (interface{}, error) {
 		ReconAddr: s.settings.Conflux.Recon.Settings.ReconAddr,
 		Software:  s.settings.Software,
 
-		Total: sksStats.Total,
+		Total: 0,
 	}
 
 	nodename, err := os.Hostname()
@@ -272,7 +272,7 @@ func (s *Server) stats() (interface{}, error) {
 		result.Hostname = nodename
 	}
 
-	for k, v := range sksStats.Hourly {
+	/*for k, v := range sksStats.Hourly {
 		result.Hourly = append(result.Hourly, loadStat{LoadStat: v, Time: k})
 	}
 	sort.Sort(loadStats(result.Hourly))
@@ -288,6 +288,7 @@ func (s *Server) stats() (interface{}, error) {
 		})
 	}
 	sort.Sort(statsPeers(result.Peers))
+	*/
 	return result, nil
 }
 
@@ -338,13 +339,13 @@ func (s *Server) Start() error {
 		s.t.Go(s.listenAndServeHKPS)
 	}
 
-	if s.sksPeer != nil {
+	/*if s.sksPeer != nil {
 		if s.settings.Conflux.Recon.ReconAddr == "none" {
 			s.sksPeer.StartMode(recon.PeerModeGossipOnly)
 		} else {
 			s.sksPeer.Start()
 		}
-	}
+	} */
 
 	if s.metricsListener != nil {
 		s.metricsListener.Start()
@@ -399,9 +400,10 @@ func (s *Server) Wait() error {
 func (s *Server) Stop() {
 	defer s.closeLog()
 
-	if s.sksPeer != nil {
+/*	if s.sksPeer != nil {
 		s.sksPeer.Stop()
 	}
+	*/
 	if s.metricsListener != nil {
 		s.metricsListener.Stop()
 	}
